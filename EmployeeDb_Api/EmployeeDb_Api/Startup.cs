@@ -1,7 +1,9 @@
+using EmployeeDb_Api.Data.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,9 +18,11 @@ namespace EmployeeDb_Api
 {
     public class Startup
     {
+        public string ConnectionString;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            ConnectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
         public IConfiguration Configuration { get; }
@@ -28,6 +32,13 @@ namespace EmployeeDb_Api
         {
 
             services.AddControllers();
+            // Db set Connection
+            services.AddDbContext<EmployeeDbContext>(options => options.UseSqlServer(ConnectionString));
+
+            // add services here
+
+            services.AddTransient<IEmployeeService,EmployeeService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EmployeeDb_Api", Version = "v1" });
